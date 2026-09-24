@@ -90,3 +90,43 @@ Cada punto es una decisión explícita. Si alguien lo pide durante el MVP, la re
 - Estado derivado de Git, PRs, CI o calendario.
 - Importar tareas de otro gestor o sincronizarse con él. FlowSync sustituye al gestor, no convive con él.
 - API pública, webhooks, integración con Slack o chat, y cualquier OAuth de terceros.
+
+---
+
+## Notas del recorte
+
+### 1. Los dos números
+
+- Historias que la IA propuso dentro del alcance: **8**
+- Historias dentro tras el recorte: **5**
+
+### 2. Tres exclusiones y la hipótesis que no ayudan a validar
+
+El MVP valida tres hipótesis:
+- **H1 — Decisión:** ver quién está en qué y qué está libre evita empezar lo que otra persona ya tiene, y permite elegir lo siguiente sin preguntar.
+- **H2 — Frescura:** si actualizar cuesta dos clics y quien escribe también usa la lista, el estado se mantiene al día sin obligar a nadie.
+- **H3 — Ritual:** con esa lista, el equipo cancela la ronda de "¿en qué estás?" de la daily y nadie pide que vuelva.
+
+**Fecha de vencimiento.**
+- No valida ninguna de las tres hipótesis.
+- Responde a "¿llegamos a tiempo?", que es una pregunta de plazos, no de coordinación entre pares.
+- Una tarea vencida no te dice si alguien la está tocando (H1) ni si su estado es fresco (H2). La ronda de la daily no pregunta por fechas (H3).
+
+**Asignar una tarea a otra persona.**
+- Contamina H2 en lugar de validarla.
+- La hipótesis es que el estado lo teclea quien hace el trabajo. Una tarea que otra persona me asigna aparece con responsable aunque yo no la haya empezado, y la lista mostraría como ocupado algo que nadie está tocando.
+- Lo que valida es el reparto de trabajo por un lead, y ese no es nuestro usuario.
+
+**Push del servidor en tiempo real (SSE).**
+- No mueve H1 ni H3 respecto a un refresco cada 30 s.
+- La señal es un resumen que espera ("llego y veo qué se ha movido"), no un aviso inmediato.
+- El único caso en que los segundos importan, que dos personas cojan la misma tarea, ya lo cubre el rechazo del servidor al coger, no la inmediatez.
+
+### 3. La exclusión de la que menos seguro estoy: los filtros
+
+**La contradicción:** lo que se pedía contra lo que veo.
+- El contexto decía explícitamente "cómo se consume la lista: filtrando por estado", y un filtro "Libre" es la forma más directa de servir a H1 ("elegir lo siguiente sabiendo qué está libre").
+- Lo que veo es un equipo de ≤ 10 personas cuya lista viva cabe en una pantalla. Ahí el orden por estado y `hecho` plegado ya responden "qué está libre" sin un control más.
+- Si me equivoco, el coste no cae en una funcionalidad secundaria: cae justo en la decisión que el producto quiere cambiar.
+
+**Qué tendría que pasar para que entrara:** que en la semana de uso real alguien vuelva a preguntar "¿qué hay libre?" o "¿qué tiene X?" teniendo la lista abierta. Otra señal equivalente: que la parte viva de la lista (`en curso` + `pendiente`) deje de caber en una pantalla. Cualquiera de las dos significa que el vistazo ya no basta, y entonces el filtro deja de ser comodidad y pasa a ser H1.
