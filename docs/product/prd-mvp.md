@@ -48,11 +48,11 @@ Hay una única lista compartida de tareas, que cumple dos funciones:
 | Tarea | Campos: **título** (el único obligatorio), **responsable** (opcional; vacío = libre), **estado**, **fecha de vencimiento** (opcional). |
 | Estados | Tres, fijos y no configurables: `pendiente` → `en curso` → `hecho`. Se puede mover a cualquiera, también hacia atrás. Estado inicial: `pendiente`. |
 | Coger una tarea | Un clic sobre una tarea libre te la asigna y la pasa a `en curso`. Si otra persona la cogió antes, se rechaza. |
-| Última actualización | **En cada tarea**: "actualizado hace X por Nombre". Es el antídoto visible contra la información vieja. |
+| Última modificación | **En cada tarea** se muestra solo la fecha y hora de su último cambio, en UTC (`2026-09-23 14:05 UTC`). No se muestra quién la hizo. Es el antídoto visible contra la información vieja. |
 | Lista | Una sola lista compartida por todo el equipo. |
-| Filtros | Por **responsable** (mías / sin asignar / persona concreta / todas) y por **estado**. Se pueden combinar. |
+| Vista de la lista | Sin filtros. Orden fijo: `en curso` → `pendiente` → `hecho`, y dentro de cada estado la modificada más recientemente. La sección `hecho` sale plegada por defecto. |
 | Vencimiento | La fecha es un día sin hora. Está **vencida** si hoy, en **UTC**, es posterior a esa fecha y la tarea no está `hecho`. |
-| Fechas y horas | Las fechas absolutas se muestran **en UTC** para todo el equipo, para que nadie traduzca husos al hablar de fechas. Los tiempos relativos ("hace 2 h") no dependen de la zona horaria. |
+| Fechas y horas | Las fechas absolutas se muestran **en UTC** para todo el equipo, para que nadie traduzca husos al hablar de fechas. |
 | Tiempo real | Los cambios de otros aparecen sin refrescar: altas, ediciones, cambios de estado o responsable, y borrados. |
 | Edición / borrado | Cualquiera edita o borra cualquier tarea (roles planos). |
 | Cuentas | El registro y el login ya existen. Cualquier cuenta registrada pertenece al único espacio. |
@@ -69,6 +69,8 @@ Hay una única lista compartida de tareas, que cumple dos funciones:
 - Importar tareas de otro gestor.
 - **Varios equipos o espacios**, y personas en más de uno.
 - Permisos o jerarquía de roles.
+- **Filtros** por responsable y estado (HU-05, aplazada). El contexto inicial hablaba de "filtrar por estado"; con 3–10 personas, el orden por estado más `hecho` plegado lo sustituye. Se retoma si la lista deja de caber en un vistazo.
+- Quién hizo la última modificación de una tarea.
 - Vista "cambios desde tu última visita". Es candidata a la siguiente iteración (ver §9).
 
 ## 6. Supuestos
@@ -83,7 +85,7 @@ Hay una única lista compartida de tareas, que cumple dos funciones:
 
 | # | Riesgo | Mitigación en el MVP |
 |---|---|---|
-| **R1** | **La información se queda vieja** y la lista deja de reflejar la realidad. Es el riesgo #1: si ocurre, el producto pierde el sentido. | Actualizar cuesta ≤ 2 clics sobre una lista ya abierta. No hay campos obligatorios salvo el título. La marca "actualizado hace X" hace visible lo viejo. No se obliga a nadie. |
+| **R1** | **La información se queda vieja** y la lista deja de reflejar la realidad. Es el riesgo #1: si ocurre, el producto pierde el sentido. | Actualizar cuesta ≤ 2 clics sobre una lista ya abierta. No hay campos obligatorios salvo el título. La última modificación visible en cada tarea delata lo viejo. No se obliga a nadie. |
 | R2 | Dos personas cogen la misma tarea a la vez. | "Coger" solo funciona si la tarea sigue libre. Si no, se rechaza con un aviso. |
 | R3 | Solapamiento en un mismo módulo con tareas distintas (A3). | Se asume. Se observa en la semana de prueba. |
 | R4 | El despliegue queda expuesto fuera de la red del equipo (A2). Con el registro abierto, cualquier cuenta nueva podría leer, editar o borrar todas las tareas. | No hay control en la aplicación. Requisito de despliegue: la guía de despliegue debe exigir la restricción de red antes de exponer `/api/v1/auth/signup`. Si A2 deja de cumplirse, hay que añadir invitación o allowlist antes de abrir el despliegue. |
@@ -92,13 +94,13 @@ Hay una única lista compartida de tareas, que cumple dos funciones:
 
 - **Para el usuario:** deja de hacer la ronda de "¿en qué estás?" en la daily porque el estado del equipo se ve de un vistazo.
 - **Criterio a una semana de uso real:** el equipo **cancela esa ronda y nadie pide que vuelva**. Si la siguen haciendo igual, no funcionó.
-- **Señal de R1 (observación, sin analítica):** al empezar la daily, ¿las tareas `en curso` tienen "actualizado hace" de menos de un día laborable?
+- **Señal de R1 (observación, sin analítica):** al empezar la daily, ¿las tareas `en curso` tienen una última modificación de hace menos de un día laborable?
 
 ## 9. Plan de construcción
 
 Una vertical fina y usable de punta a punta. Mejor una capacidad terminada que tres a medias. El detalle está en [historias-mvp.md](./historias-mvp.md).
 
-1. **Incremento 1 — Cola compartida:** crear, listar, cambiar el estado, coger o asignar, y filtrar. Ya se puede usar con recarga manual.
+1. **Incremento 1 — Cola compartida:** crear, listar, cambiar el estado y coger o asignar. Ya se puede usar con recarga manual.
 2. **Incremento 2 — Tiempo real:** los cambios aparecen sin refrescar. Es lo que da sentido al producto; sin esto el MVP no está terminado.
 3. **Incremento 3 — Plazos y mantenimiento:** fecha de vencimiento con marca de vencida, editar el título y borrar.
 4. **Siguiente iteración (fuera del MVP):** "qué se ha movido desde tu última visita".

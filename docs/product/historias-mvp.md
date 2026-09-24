@@ -6,7 +6,7 @@ Estas historias salen del [PRD](./prd-mvp.md). Todas asumen una persona autentic
 - "Persona" = cualquier miembro del equipo; no hay roles.
 - "Libre" = tarea sin responsable.
 - Las fechas absolutas se muestran en UTC con el sufijo `UTC`.
-- "Actualizado" = cualquier cambio en la tarea (título, estado, responsable o fecha). Guarda cuándo ocurrió y quién lo hizo.
+- "Última modificación" = fecha y hora del último cambio en la tarea (título, estado, responsable o fecha). Es el `updated_at` de la tarea y se muestra como `AAAA-MM-DD HH:mm UTC`. No se registra ni se muestra quién hizo el cambio.
 
 ---
 
@@ -19,16 +19,16 @@ Estas historias salen del [PRD](./prd-mvp.md). Todas asumen una persona autentic
 - **Dado** que estoy en la lista, **cuando** escribo un título y pulso Enter, **entonces** la tarea aparece en la lista en `pendiente`, libre y sin fecha.
 - El título es obligatorio: de 1 a 200 caracteres, sin contar los espacios de los extremos. Si está vacío, se muestra un error en castellano y no se crea nada.
 - No hay más campos obligatorios ni pasos de configuración.
-- Al crearla, la tarea muestra "actualizado hace unos segundos por <yo>".
+- Al crearla, la tarea muestra su última modificación: el momento de creación.
 
 ### HU-02 · Ver el estado del equipo de un vistazo
 
 **Como** persona del equipo, **quiero** ver todas las tareas con su estado, responsable y frescura **para** saber quién está en qué sin preguntar.
 
-- Cada fila muestra: título, estado, responsable ("Libre" si no tiene), fecha de vencimiento si la hay y "actualizado hace X por Nombre".
-- Al pasar el cursor por el "hace X", se ve la hora exacta en UTC (p. ej. `2026-09-23 14:05 UTC`).
+- Cada fila muestra: título, estado, responsable ("Libre" si no tiene), fecha de vencimiento si la hay y la última modificación (p. ej. `2026-09-23 14:05 UTC`).
 - Cuando la persona no tiene `full_name`, se muestra su email.
-- **Orden por defecto:** primero `en curso`, luego `pendiente` y al final `hecho`. Dentro de cada estado, primero la actualizada más recientemente.
+- **Orden:** primero `en curso`, luego `pendiente` y al final `hecho`. Dentro de cada estado, primero la modificada más recientemente.
+- **La sección `hecho` sale plegada por defecto** y se despliega con un clic. No hay filtros en el MVP: este plegado es lo que evita que lo terminado entierre lo vivo.
 - Si no hay tareas, se muestra un vacío con el campo para crear la primera.
 - No se muestra ninguna información sobre personas (conexión, actividad), solo sobre tareas.
 
@@ -38,7 +38,7 @@ Estas historias salen del [PRD](./prd-mvp.md). Todas asumen una persona autentic
 
 - **Dado** una tarea en la lista, **cuando** abro su selector de estado y elijo otro, **entonces** el cambio se guarda sin pantalla ni formulario intermedios. Son como máximo 2 clics.
 - Se puede pasar de cualquier estado a cualquier otro, también hacia atrás.
-- Tras el cambio, la fila muestra "actualizado hace unos segundos por <yo>".
+- Tras el cambio, la última modificación de la fila pasa a ser la hora del cambio.
 - Si el guardado falla, la fila vuelve a su estado anterior y se muestra el error.
 
 ### HU-04 · Coger una tarea libre, asignar o liberar
@@ -51,16 +51,6 @@ Estas historias salen del [PRD](./prd-mvp.md). Todas asumen una persona autentic
 - Asignar a alguien o liberar la tarea no cambia su estado. Solo "Cogerla" lo cambia.
 - Reasignar y liberar siguen la misma regla que "Cogerla". Si el responsable cambió desde que cargué la fila, la operación se rechaza y veo el responsable actual. Nunca piso un cambio de otra persona sin haberlo visto.
 
-### HU-05 · Filtrar por responsable y estado
-
-**Como** persona del equipo, **quiero** filtrar la lista **para** centrarme en mi cola o en lo que está libre.
-
-- Filtro de responsable: **Mías** · **Sin asignar** · **una persona** · **Todas** (por defecto).
-- Filtro de estado: uno o varios de `pendiente` / `en curso` / `hecho`. Por defecto, todos.
-- Los dos filtros se combinan. Por ejemplo, "Sin asignar + pendiente" responde a "¿qué puedo coger?".
-- Los filtros viven en la URL: un enlace o una recarga mantiene la vista.
-- Si una tarea deja de cumplir el filtro al editarla, sale de la vista.
-
 ---
 
 ## Incremento 2 — Tiempo real
@@ -69,9 +59,9 @@ Estas historias salen del [PRD](./prd-mvp.md). Todas asumen una persona autentic
 
 **Como** persona del equipo, **quiero** que la lista refleje los cambios de los demás mientras la tengo abierta **para** no tener que recargar ni preguntar.
 
-- **Dado** que tengo la lista abierta, **cuando** otra persona crea, edita, cambia el estado o el responsable, o borra una tarea, **entonces** mi lista lo refleja en ≤ 5 s sin recargar. Se respetan mis filtros y el orden.
+- **Dado** que tengo la lista abierta, **cuando** otra persona crea, edita, cambia el estado o el responsable, o borra una tarea, **entonces** mi lista lo refleja en ≤ 5 s sin recargar, respetando el orden.
 - El cambio no genera aviso, sonido ni notificación. Como mucho, un resaltado breve en la fila afectada.
-- El "actualizado hace X" avanza solo con el paso del tiempo, sin recargar.
+- La última modificación de la fila afectada se actualiza con el evento.
 - Si se pierde la conexión en tiempo real, la lista se resincroniza al recuperarla y no queda desactualizada en silencio. Mientras tanto se ve una indicación discreta de "sin conexión".
 - Solo se emiten eventos de tareas. Nunca se emiten ni se exponen eventos sobre personas (conexión, actividad).
 
@@ -100,6 +90,18 @@ Estas historias salen del [PRD](./prd-mvp.md). Todas asumen una persona autentic
 
 ## Siguiente iteración (fuera del MVP)
 
+### HU-05 · Filtrar por responsable y estado (aplazada)
+
+Queda fuera del MVP por decisión de alcance: con 3–10 personas la lista ordenada por estado y con `hecho` plegado basta para verla de un vistazo. Se retomará si la lista deja de caber en ese vistazo. Criterios originales:
+
+**Como** persona del equipo, **quiero** filtrar la lista **para** centrarme en mi cola o en lo que está libre.
+
+- Filtro de responsable: **Mías** · **Sin asignar** · **una persona** · **Todas** (por defecto).
+- Filtro de estado: uno o varios de `pendiente` / `en curso` / `hecho`. Por defecto, todos.
+- Los dos filtros se combinan. Por ejemplo, "Sin asignar + pendiente" responde a "¿qué puedo coger?".
+- Los filtros viven en la URL: un enlace o una recarga mantiene la vista.
+- Si una tarea deja de cumplir el filtro al editarla, sale de la vista.
+
 ### HU-09 · Qué se ha movido desde mi última visita
 
 **Como** persona que vuelve de una reunión o empieza el día, **quiero** ver qué tareas han cambiado desde mi última visita **para** ponerme al día sin recorrer toda la lista.
@@ -118,19 +120,18 @@ Esto no son requisitos; es un punto de partida que respeta la arquitectura del r
   - `status` (`pending` | `in_progress` | `done`, default `pending`)
   - `assignee_id` (FK `users`, nullable)
   - `due_date` (date, nullable)
-  - `updated_by_id` (FK `users`, not null)
   - `created_at`, `updated_at`
 
   Se crea con migración; `database/schema.ts` se regenera, no se edita.
 - **API bajo `/api/v1/tasks`, protegida con `middleware.auth()`:**
-  - `GET /tasks?assignee=me|none|<id>&status=...`
+  - `GET /tasks`, sin parámetros de filtro en el MVP
   - `POST /tasks`
   - `PATCH /tasks/:id`
   - `POST /tasks/:id/claim` (HU-04). Hace una actualización condicional `WHERE assignee_id IS NULL`; si no hay filas afectadas, devuelve `409` con el responsable actual.
   - Un `PATCH` que cambia `assigneeId` debe incluir `expectedAssigneeId`: actualización condicional y `409` si no coincide, igual que `claim`.
   - `DELETE /tasks/:id`
   - `GET /users` para el selector de responsable.
-- Las respuestas van siempre por `serialize()` con un `TaskTransformer`. Este incluye `assignee` y `updatedBy` con `{ id, fullName, email }`.
+- Las respuestas van siempre por `serialize()` con un `TaskTransformer`. Este incluye `assignee` con `{ id, fullName, email }` y `updatedAt` en ISO 8601 UTC.
 - Las fechas se guardan y se devuelven en UTC (ISO 8601). "Vencida" se calcula en el cliente con la fecha UTC actual.
-- **Frontend:** las llamadas nuevas van en `lib/api.ts`. La lista va en `pages/` y los filtros van en query params de react-router.
+- **Frontend:** las llamadas nuevas van en `lib/api.ts`. La lista va en `pages/`.
 - **Tiempo real (Incremento 2):** SSE con `@adonisjs/transmit`. El backend emite `task.created|updated|deleted` en un único canal de tareas y el cliente aplica los eventos sobre su estado local.
