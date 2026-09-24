@@ -86,7 +86,7 @@ Hay una única lista compartida de tareas, que cumple dos funciones:
 | **R1** | **La información se queda vieja** y la lista deja de reflejar la realidad. Es el riesgo #1: si ocurre, el producto pierde el sentido. | Actualizar cuesta ≤ 2 clics sobre una lista ya abierta. No hay campos obligatorios salvo el título. La marca "actualizado hace X" hace visible lo viejo. No se obliga a nadie. |
 | R2 | Dos personas cogen la misma tarea a la vez. | "Coger" solo funciona si la tarea sigue libre. Si no, se rechaza con un aviso. |
 | R3 | Solapamiento en un mismo módulo con tareas distintas (A3). | Se asume. Se observa en la semana de prueba. |
-| R4 | El despliegue queda expuesto fuera de la red del equipo (A2). | Se documenta en el despliegue. No hay control en la aplicación. |
+| R4 | El despliegue queda expuesto fuera de la red del equipo (A2). Con el registro abierto, cualquier cuenta nueva podría leer, editar o borrar todas las tareas. | No hay control en la aplicación. Requisito de despliegue: la guía de despliegue debe exigir la restricción de red antes de exponer `/api/v1/auth/signup`. Si A2 deja de cumplirse, hay que añadir invitación o allowlist antes de abrir el despliegue. |
 
 ## 8. Métrica de éxito
 

@@ -49,6 +49,7 @@ Estas historias salen del [PRD](./prd-mvp.md). Todas asumen una persona autentic
 - **Dado** que otra persona cogió la tarea antes que yo, aunque mi pantalla aún la mostrara libre, **cuando** pulso "Cogerla", **entonces** la operación se rechaza. Veo quién la tiene y la fila se actualiza. Nunca se sobrescribe al responsable en silencio.
 - Desde la fila puedo cambiar el responsable por cualquier persona registrada, o dejar la tarea libre, en como máximo 2 clics.
 - Asignar a alguien o liberar la tarea no cambia su estado. Solo "Cogerla" lo cambia.
+- Reasignar y liberar siguen la misma regla que "Cogerla". Si el responsable cambió desde que cargué la fila, la operación se rechaza y veo el responsable actual. Nunca piso un cambio de otra persona sin haberlo visto.
 
 ### HU-05 · Filtrar por responsable y estado
 
@@ -126,6 +127,7 @@ Esto no son requisitos; es un punto de partida que respeta la arquitectura del r
   - `POST /tasks`
   - `PATCH /tasks/:id`
   - `POST /tasks/:id/claim` (HU-04). Hace una actualización condicional `WHERE assignee_id IS NULL`; si no hay filas afectadas, devuelve `409` con el responsable actual.
+  - Un `PATCH` que cambia `assigneeId` debe incluir `expectedAssigneeId`: actualización condicional y `409` si no coincide, igual que `claim`.
   - `DELETE /tasks/:id`
   - `GET /users` para el selector de responsable.
 - Las respuestas van siempre por `serialize()` con un `TaskTransformer`. Este incluye `assignee` y `updatedBy` con `{ id, fullName, email }`.
